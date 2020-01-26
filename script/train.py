@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from IPython.display import display
 import pathlib
-from sklearn.metrics import roc_curve, confusion_matrix, plot_roc_curve, auc
+from sklearn.metrics import roc_curve, confusion_matrix, plot_roc_curve, auc, roc_auc_score
 import numpy as np
 #from create import createModel
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -14,12 +14,17 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, Dropout, MaxPooling2D, Dense, Flatten
 from sklearn.metrics import roc_auc_score
 
+ep = [1,10, 100]
+auce = []
+confs = []
+train_confs = []
 
-
-if __name__ == '__main__':
+for epch in ep:
   img_gen = ImageDataGenerator(rescale=1./255.)
   train_gen = img_gen.flow_from_directory('../data/train',target_size=(776,294), color_mode='rgb', class_mode='categorical'
-                                          , batch_size=5)
+                                          , batch_size=5
+                                          #,shuffle=False
+                                          )
   img2_gen = ImageDataGenerator(rescale=1./255.)
   test_gen = img2_gen.flow_from_directory('../data/test', target_size=(776, 294), color_mode='rgb', batch_size=1, class_mode='categorical', shuffle=False)
 
@@ -42,16 +47,32 @@ if __name__ == '__main__':
 
   model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
   model.summary()
-  model.fit(train_gen, epochs=20)
+  model.fit(train_gen, epochs=epch)
   print('evaluate')
   n_classes = 2
   y_test = test_gen.classes
   score = model.evaluate(test_gen)
-  print(score)
   y_score = model.predict(test_gen)
   a,b,_= roc_curve(test_gen.classes, y_score[:,1])
-  fig = plt.figure()
+  auce.append(roc_auc_score(test_gen.classes, y_score[:,1]))
+
+
   plt.plot(a,b)
-  plt.plot([0,1],[0,1])
-  plt.show()
+
+  preds_classes = np.argmax(y_score, axis=-1)
+  confs.append(confusion_matrix(test_gen.classes, preds_classes))
+
+  #yt_score = model.predict(train_gen)
+  #predst_classes = np.argmax(yt_score, axis=-1)
+  #train_confs.append(confusion_matrix(train_gen.classes, predst_classes))
+
+plt.plot([0,1],[0,1])
+plt.title('Wykres ROC')
+plt.xlabel('false positive rate')
+plt.ylabel('true positive rate')
+plt.legend(['1 epoka','10 epok','100 epok'])
+plt.savefig('roc_curve.png')
+print(auce)
+print(confs)
+print(train_confs)
 
