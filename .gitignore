@@ -107,3 +107,4 @@ build/
 SNR_Projekt.egg-info/
 data/
 .idea/
+venv/
