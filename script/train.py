@@ -6,42 +6,52 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from IPython.display import display
 import pathlib
+from sklearn.metrics import roc_curve, confusion_matrix, plot_roc_curve, auc
+import numpy as np
 #from create import createModel
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, Dropout, MaxPooling2D, Dense, Flatten
+from sklearn.metrics import roc_auc_score
+
 
 
 if __name__ == '__main__':
-  print('Hello world!')
-  path = pathlib.Path('../data/accept')
-  image_count = len(list(path.glob('*.bmp')))
-  roses = list(path.glob('*.bmp'))
-  im = Image.open(str(roses[0]))
-  print(im)
-  train_image_generator = ImageDataGenerator(rescale=1. / 255, horizontal_flip=True, vertical_flip=True)
-  train_generator = train_image_generator.flow_from_directory('../data/train',
-                                            target_size=(776,294),
-                                            color_mode='rgb',
-                                            batch_size=8,
-                                            class_mode='categorical',
-                                          )
+  img_gen = ImageDataGenerator(rescale=1./255.)
+  train_gen = img_gen.flow_from_directory('../data/train',target_size=(776,294), color_mode='rgb', class_mode='categorical'
+                                          , batch_size=5)
+  img2_gen = ImageDataGenerator(rescale=1./255.)
+  test_gen = img2_gen.flow_from_directory('../data/test', target_size=(776, 294), color_mode='rgb', batch_size=1, class_mode='categorical', shuffle=False)
+
+
+
 
   model = Sequential()
-  model.add(Conv2D(32, (9,5), input_shape=(776, 294, 3), activation='relu'))
-  model.add(MaxPooling2D(pool_size=(2, 2)))
-  model.add(Conv2D(32, (5,5),activation='relu'))
-  model.add(MaxPooling2D(pool_size=(2, 2)))
-  model.add(Conv2D(32, (5,5), activation='relu'))
-  model.add(MaxPooling2D(pool_size=(2, 2)))
-  model.add(Conv2D(32, (3,3), activation='relu'))
-
-
+  model.add(Conv2D(64, (7,7), input_shape=(776, 294, 3), activation='relu'))
+  model.add(MaxPooling2D(pool_size=(5,5)))
+  model.add(Conv2D(64, (5,5), activation='relu'))
+  model.add(MaxPooling2D(pool_size=(3,3)))
+  model.add(Conv2D(64, (5,5), activation='relu'))
+  model.add(MaxPooling2D(pool_size=(3,3)))
   model.add(Flatten())
-  model.add(Dense(32, activation='relu'))
-  model.add(Dense(8, activation='relu'))
+  model.add(Dropout(0.2))
+  model.add(Dense(500, activation='relu'))
+  model.add(Dropout(0.2))
+  model.add(Dense(36, activation='relu'))
   model.add(Dense(2, activation='softmax'))
 
   model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-  model.fit(train_generator, epochs=30)
-  #model.fit(train_generator, epochs=30)
+  model.summary()
+  model.fit(train_gen, epochs=20)
+  print('evaluate')
+  n_classes = 2
+  y_test = test_gen.classes
+  score = model.evaluate(test_gen)
+  print(score)
+  y_score = model.predict(test_gen)
+  a,b,_= roc_curve(test_gen.classes, y_score[:,1])
+  fig = plt.figure()
+  plt.plot(a,b)
+  plt.plot([0,1],[0,1])
+  plt.show()
+

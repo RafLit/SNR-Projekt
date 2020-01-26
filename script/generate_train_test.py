@@ -25,6 +25,7 @@ if __name__ == '__main__':
     rejectTrainFiles = rejectFiles[:rejectSplit]
     rejectTestFiles = rejectFiles[rejectSplit:]
     outFiles = [acceptTrainFiles, acceptTestFiles, rejectTrainFiles, rejectTestFiles]
+
     for directory in outDirs:
         if not os.path.isdir(directory):
             os.makedirs(directory)
@@ -33,9 +34,11 @@ if __name__ == '__main__':
                 os.remove(file)
     for path, files in zip(outDirs, outFiles):
         for file in files:
-            if  not os.path.isfile(file):
+            if not os.path.isfile(file):
                 continue
             outPath = os.path.join(path, os.path.split(file)[1])
+            print(file)
+            print(outPath)
             shutil.copy(file, outPath)
 
 
