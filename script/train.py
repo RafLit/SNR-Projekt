@@ -22,7 +22,7 @@ train_confs = []
 for epch in ep:
   img_gen = ImageDataGenerator(rescale=1./255.)
   train_gen = img_gen.flow_from_directory('../data/train',target_size=(776,294), color_mode='rgb', class_mode='categorical'
-                                          , batch_size=5
+                                          , batch_size=3
                                           #,shuffle=False
                                           )
   img2_gen = ImageDataGenerator(rescale=1./255.)
@@ -32,17 +32,22 @@ for epch in ep:
 
 
   model = Sequential()
-  model.add(Conv2D(64, (7,7), input_shape=(776, 294, 3), activation='relu'))
-  model.add(MaxPooling2D(pool_size=(5,5)))
-  model.add(Conv2D(64, (5,5), activation='relu'))
+  model.add(Conv2D(64, (5,5), input_shape=(776, 294, 3), activation='relu'))
+  model.add(MaxPooling2D(pool_size=(3,3)))
+  model.add(Conv2D(128, (5,3), activation='relu'))
   model.add(MaxPooling2D(pool_size=(3,3)))
   model.add(Conv2D(64, (5,5), activation='relu'))
+  model.add(Conv2D(64, (5,3), activation='relu'))
+  model.add(Conv2D(64, (3,3), activation='relu'))
   model.add(MaxPooling2D(pool_size=(3,3)))
+  model.add(Conv2D(64, (5,3), activation='relu'))
+  model.add(Conv2D(128, (3,3), activation='relu'))
+  model.add(MaxPooling2D(pool_size=(3,3)))
+
   model.add(Flatten())
-  model.add(Dropout(0.2))
+  model.add(Dense(2000, activation='relu'))
   model.add(Dense(500, activation='relu'))
-  model.add(Dropout(0.2))
-  model.add(Dense(36, activation='relu'))
+  model.add(Dense(50, activation='relu'))
   model.add(Dense(2, activation='softmax'))
 
   model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
