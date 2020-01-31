@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     model = create1Model()
     #model.summary()
-    model.fit(train_gen, epochs=100)
+    model.fit(train_gen, epochs=10)
 
     print('classifying data...')
     x = model.predict(unlabeled_gen)
