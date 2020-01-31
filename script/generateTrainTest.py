@@ -4,8 +4,9 @@ import random
 import math
 import shutil
 
+trainTestSplit = 0.7
+
 if __name__ == '__main__':
-    trainTestSplit = 0.7
     acceptPath = os.path.join('..','data','accept')
     rejectPath = os.path.join('..','data','reject')
     acceptTrainPath = os.path.join('..','data','train','accept')
@@ -13,8 +14,8 @@ if __name__ == '__main__':
     rejectTrainPath = os.path.join('..','data','train','reject')
     rejectTestPath = os.path.join('..','data','test','reject')
     outDirs = [acceptTrainPath, acceptTestPath, rejectTrainPath, rejectTestPath]
-    if not os.path.exists(acceptPath) or not os.path.exists('../data/reject'):
-        raise FileNotFoundError()
+    if not os.path.exists(acceptPath) or not os.path.exists(rejectPath):
+        raise FileNotFoundError('couldnt find any data!')
     acceptFiles = [os.path.join(acceptPath, file) for file in os.listdir(acceptPath)]
     rejectFiles = [os.path.join(rejectPath, file) for file in os.listdir(rejectPath)]
     random.shuffle(acceptFiles)
@@ -38,8 +39,6 @@ if __name__ == '__main__':
             if not os.path.isfile(file):
                 continue
             outPath = os.path.join(path, os.path.split(file)[1])
-            print(file)
-            print(outPath)
             shutil.copy(file, outPath)
 
 

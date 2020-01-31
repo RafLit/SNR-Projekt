@@ -5,13 +5,13 @@ import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from createModel import create1Model, create2Model, create3Model
 
-ep = [1]
+ep = [1,10,100]
 auce = []
 confs = []
 train_confs = []
 
 for epch in ep:
-  img_gen = ImageDataGenerator(rescale=1./255.)
+  img_gen = ImageDataGenerator(rescale=1./255., vertical_flip=True)
   train_gen = img_gen.flow_from_directory('../data/train',target_size=(776,294), color_mode='rgb',
                                           class_mode='categorical', batch_size=3)
 
