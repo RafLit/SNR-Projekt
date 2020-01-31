@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import os
-import pathlib
 import random
 import math
 import shutil
+
 if __name__ == '__main__':
     trainTestSplit = 0.7
     acceptPath = os.path.join('..','data','accept')
